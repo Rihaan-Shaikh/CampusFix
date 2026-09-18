@@ -50,13 +50,13 @@ recorded for later inspection.
 │                                                                       │
 │   CAMPUS USER                         FACILITIES TEAM                 │
 │       │                                      │                        │
-│       │ Report issue                         │ View queue              │
+│       │ Report issue                         │ View queue             │
 │       ▼                                      ▼                        │
-│   Categorize ────────────────►          Triage                       │
+│   Categorize ────────────────►          Triage                        │
 │       │                                      │                        │
 │       │ Priority + Location                  │ Assign                 │
 │       ▼                                      ▼                        │
-│     Submit ──────────────────►         Work in progress              │
+│     Submit ──────────────────►         Work in progress               │
 │                                              │                        │
 │                                              ▼                        │
 │                                           Resolve                     │
