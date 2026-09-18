@@ -596,7 +596,7 @@ The application can be understood through the following boundaries:
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│                         PRESENTATION                          │
+│                         PRESENTATION                         │
 │                                                              │
 │  Pages · Layouts · Drawers · Forms · Tables · Components     │
 │                                                              │
@@ -604,7 +604,7 @@ The application can be understood through the following boundaries:
                                │
                                ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                       APPLICATION                             │
+│                       APPLICATION                            │
 │                                                              │
 │  Server Actions · API Routes · Validation · Authorization    │
 │                                                              │
@@ -614,13 +614,13 @@ The application can be understood through the following boundaries:
 ┌──────────────────────────────────────────────────────────────┐
 │                         DOMAIN                               │
 │                                                              │
-│  Issues · Users · Status · Assignment · Audit · Email       │
+│  Issues · Users · Status · Assignment · Audit · Email        │
 │                                                              │
 └──────────────────────────────┬───────────────────────────────┘
                                │
                                ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                        PERSISTENCE                            │
+│                        PERSISTENCE                           │
 │                                                              │
 │               Prisma ORM → PostgreSQL                        │
 │                                                              │
@@ -1385,7 +1385,7 @@ New dependencies and abstractions should solve a real problem.
              │   AUDIT     │       │    EMAIL     │
              │   TRAIL     │       │ React Email  │
              └─────────────┘       │   + Resend   │
-                                    └──────────────┘
+                                   └──────────────┘
 ```
 
 ---
