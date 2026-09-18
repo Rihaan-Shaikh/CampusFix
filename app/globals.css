@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* CampusFix Production Light Palette */
+    --background: 220 20% 97.6%;       /* #F7F8FA */
+    --foreground: 218 43% 16%;         /* #17243A Primary ink */
+    --card: 0 0% 100%;                 /* #FFFFFF Surface */
+    --card-foreground: 218 43% 16%;    /* #17243A */
+    --popover: 0 0% 100%;              /* #FFFFFF */
+    --popover-foreground: 218 43% 16%;
+    --primary: 38 92% 50%;             /* #F59E0B Brand Orange */
+    --primary-foreground: 219 48% 11%; /* #0E1728 Deep ink on orange */
+    --secondary: 214 25% 96%;          /* #F1F4F7 Subtle surface */
+    --secondary-foreground: 218 43% 16%;
+    --muted: 214 25% 96%;              /* #F1F4F7 */
+    --muted-foreground: 218 16% 45%;   /* Readable secondary text */
+    --accent: 214 25% 93%;
+    --accent-foreground: 218 43% 16%;
+    --destructive: 358 68% 55%;        /* #DC3F45 Danger */
+    --destructive-foreground: 0 0% 100%;
+    --border: 212 23% 88%;             /* #D9E0E7 */
+    --input: 212 23% 88%;
+    --ring: 38 92% 50%;                /* #F59E0B Focus ring */
+    --radius: 0.375rem;
+
+    /* Semantic CampusFix Tokens */
+    --brand: 38 92% 50%;               /* #F59E0B */
+    --brand-hover: 32 95% 44%;         /* #D97706 */
+    --brand-foreground: 219 48% 11%;
+    --deep-navy: 219 48% 11%;          /* #0E1728 */
+    --accent-blue: 221 83% 53%;        /* #2563EB */
+    --accent-teal: 175 77% 26%;        /* #0F766E */
+    --success: 163 83% 34%;            /* #0F9F75 */
+    --warning: 32 95% 44%;             /* #D97706 */
+    --danger: 358 68% 55%;             /* #DC3F45 */
+  }
+
+  .dark {
+    /* CampusFix Production Dark Palette */
+    --background: 219 47% 6%;          /* #080D16 Background */
+    --foreground: 216 33% 97%;         /* #F5F7FA Primary text */
+    --card: 217 44% 10%;               /* #0E1624 Surface */
+    --card-foreground: 216 33% 97%;
+    --popover: 215 40% 13%;            /* #131E2D Elevated surface */
+    --popover-foreground: 216 33% 97%;
+    --primary: 38 92% 50%;             /* #F59E0B Brand Orange */
+    --primary-foreground: 219 48% 11%;
+    --secondary: 215 40% 13%;          /* #131E2D Elevated surface */
+    --secondary-foreground: 216 33% 97%;
+    --muted: 215 40% 13%;
+    --muted-foreground: 216 20% 72%;   /* #A9B4C4 Secondary text */
+    --accent: 215 35% 17%;
+    --accent-foreground: 216 33% 97%;
+    --destructive: 358 100% 68%;       /* #FF5A61 Danger */
+    --destructive-foreground: 0 0% 100%;
+    --border: 216 31% 21%;             /* #243145 Borders */
+    --input: 216 31% 21%;
+    --ring: 38 92% 50%;
+
+    /* Semantic CampusFix Tokens */
+    --brand: 38 92% 50%;               /* #F59E0B */
+    --brand-hover: 38 90% 53%;         /* #F2A51A */
+    --brand-foreground: 219 48% 11%;
+    --deep-navy: 219 47% 6%;
+    --accent-blue: 219 100% 65%;       /* #4F8CFF */
+    --accent-teal: 168 66% 44%;        /* #26B89A */
+    --success: 158 66% 47%;            /* #29C58B */
+    --warning: 38 90% 53%;             /* #F2A51A */
+    --danger: 358 100% 68%;            /* #FF5A61 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-brand selection:text-brand-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-semibold text-foreground;
+  }
+}
+
+/* Smooth motion timing curves */
+:root {
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-smooth {
+  transition-timing-function: var(--ease-spring);
+  transition-duration: 200ms;
+}
+
+/* Micro-transitions respecting reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keyframes for smooth animations */
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px -2px rgba(245, 158, 11, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px rgba(245, 158, 11, 0.45);
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes check-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Staggered animation entrance utilities */
+.animate-stagger-1 {
+  animation: fade-in-up 0.3s var(--ease-spring) both;
+  animation-delay: 40ms;
+}
+.animate-stagger-2 {
+  animation: fade-in-up 0.3s var(--ease-spring) both;
+  animation-delay: 80ms;
+}
+.animate-stagger-3 {
+  animation: fade-in-up 0.3s var(--ease-spring) both;
+  animation-delay: 120ms;
+}
+.animate-stagger-4 {
+  animation: fade-in-up 0.3s var(--ease-spring) both;
+  animation-delay: 160ms;
+}
+
+/* Interactive Utility Classes */
+.hover-lift {
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring), border-color 0.22s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+.hover-lift:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.btn-tactile {
+  transition: transform 0.15s var(--ease-spring), box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn-tactile:active {
+  transform: scale(0.97);
+}
+
+.card-interactive {
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring), border-color 0.2s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+}
+.dark .card-interactive:hover {
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.4);
+}
+
+.radar-dot {
+  position: relative;
+  display: inline-flex;
+}
+.radar-dot::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  opacity: 0.6;
+  animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Subtle, precision scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+

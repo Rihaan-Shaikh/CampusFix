@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  GUEST
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AuditAction {
+  ISSUE_CREATED
+  ISSUE_UPDATED
+  STATUS_CHANGED
+  ISSUE_ASSIGNED
+  USER_ROLE_CHANGED
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  BOUNCED
+  FAILED
+}
+
+// ----------------------------------------------------
+// Better Auth Core Models + Domain Extensions
+// ----------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          UserRole  @default(MEMBER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Better Auth Relations
+  sessions      Session[]
+  accounts      Account[]
+
+  // Domain Relations
+  issuesCreated   Issue[]              @relation("CreatedIssues")
+  issuesAssigned  Issue[]              @relation("AssignedIssues")
+  statusHistory   IssueStatusHistory[]
+  auditLogs       AuditLog[]
+  emailDeliveries EmailDelivery[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ----------------------------------------------------
+// CampusFix Domain Models
+// ----------------------------------------------------
+
+model Issue {
+  id            String         @id @default(cuid())
+  referenceCode String         @unique // e.g. CFX-8921
+  title         String
+  description   String
+  category      String
+  priority      IssuePriority  @default(MEDIUM)
+  status        IssueStatus    @default(OPEN)
+  location      String
+
+  createdById   String
+  createdBy     User           @relation("CreatedIssues", fields: [createdById], references: [id], onDelete: Cascade)
+
+  assignedToId  String?
+  assignedTo    User?          @relation("AssignedIssues", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  resolvedAt    DateTime?
+
+  // Relations
+  statusHistory   IssueStatusHistory[]
+  emailDeliveries EmailDelivery[]
+
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@index([createdById])
+  @@index([assignedToId])
+  @@index([createdAt])
+  @@map("issue")
+}
+
+model IssueStatusHistory {
+  id             String       @id @default(cuid())
+  issueId        String
+  issue          Issue        @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  previousStatus IssueStatus?
+  newStatus      IssueStatus
+  changedById    String
+  changedBy      User         @relation(fields: [changedById], references: [id], onDelete: Cascade)
+
+  note           String?
+  createdAt      DateTime     @default(now())
+
+  @@index([issueId])
+  @@index([changedById])
+  @@index([createdAt])
+  @@map("issue_status_history")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorUserId String
+  actor       User        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  action      AuditAction
+  entityType  String      // "Issue" | "User" | "Role"
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model EmailDelivery {
+  id                String       @id @default(cuid())
+  providerMessageId String?      // Resend returned email ID (e.g. msg_12345)
+  recipient         String
+  subject           String
+  template          String       // e.g. "issue-created-confirmation"
+  status            EmailStatus  @default(SENT)
+  eventType         String?      // e.g. "email.sent", "email.delivered", "email.bounced"
+
+  issueId           String?
+  issue             Issue?       @relation(fields: [issueId], references: [id], onDelete: SetNull)
+
+  userId            String?
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  providerEventId   String?      @unique // Idempotency key from Resend webhook event ID
+  payload           Json?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([status])
+  @@index([recipient])
+  @@index([issueId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("email_delivery")
+}
