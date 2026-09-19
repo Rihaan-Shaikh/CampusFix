@@ -52,11 +52,11 @@ recorded for later inspection.
 │       │                                      │                        │
 │       │ Report issue                         │ View queue             │
 │       ▼                                      ▼                        │
-│   Categorize ────────────────►          Triage                        │
+│   Categorize ──────────────────────────►Triage                        │
 │       │                                      │                        │
 │       │ Priority + Location                  │ Assign                 │
 │       ▼                                      ▼                        │
-│     Submit ──────────────────►         Work in progress               │
+│     Submit ───────────────────────────►Work in progress               │
 │                                              │                        │
 │                                              ▼                        │
 │                                           Resolve                     │
