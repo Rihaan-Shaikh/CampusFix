@@ -108,7 +108,7 @@ Anyone can open the deployed application and explore the CampusFix interface and
                          ┌──────────────────────┐
                          │       NETLIFY        │
                          │                      │
-                         │  CampusFix Next.js  │
+                         │  CampusFix Next.js   │
                          │     Application      │
                          └──────────┬───────────┘
                                     │
