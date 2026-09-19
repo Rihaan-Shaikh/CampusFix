@@ -17,6 +17,8 @@
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-CampusFix-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://campusfixed.netlify.app/)
+
 <br />
 
 [**Overview**](#-overview) ·
@@ -73,7 +75,71 @@ The platform is designed around a simple operational principle:
 > **Make the current state of every campus issue obvious — and make the next action easy.**
 
 ---
+# 🚀 Live Deployment
 
+CampusFix is deployed and available to try online.
+
+### 🌐 Live Application
+
+**[https://campusfixed.netlify.app/](https://campusfixed.netlify.app/)**
+
+Anyone can open the deployed application and explore the CampusFix interface and workflow.
+
+### Deployment Stack
+
+| Service | Purpose |
+|---|---|
+| **Netlify** | Production hosting and deployment of the Next.js application |
+| **Neon PostgreSQL** | Managed PostgreSQL database used by the production application |
+| **Prisma** | Database access layer and schema management |
+| **Better Auth** | Authentication and session management |
+| **Resend** | Transactional email delivery |
+
+### Deployment Architecture
+
+```text
+                         ┌──────────────────────┐
+                         │        USER          │
+                         │      Browser         │
+                         └──────────┬───────────┘
+                                    │
+                                    │ HTTPS
+                                    ▼
+                         ┌──────────────────────┐
+                         │       NETLIFY        │
+                         │                      │
+                         │  CampusFix Next.js  │
+                         │     Application      │
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────┴───────────┐
+                         │                      │
+                         ▼                      ▼
+                ┌─────────────────┐    ┌─────────────────┐
+                │  BETTER AUTH    │    │     PRISMA      │
+                │ Authentication  │    │   ORM / Data    │
+                │   & Sessions    │    │     Access      │
+                └─────────────────┘    └────────┬────────┘
+                                                 │
+                                                 │ PostgreSQL
+                                                 ▼
+                                      ┌─────────────────────┐
+                                      │   NEON POSTGRESQL   │
+                                      │                     │
+                                      │  Production Data    │
+                                      │  Users              │
+                                      │  Issues             │
+                                      │  Audit Records      │
+                                      │  Issue History      │
+                                      │  Email Activity     │
+                                      └─────────────────────┘
+```
+
+### Try CampusFix
+
+**Live URL:** [https://campusfixed.netlify.app/](https://campusfixed.netlify.app/)
+
+The production deployment uses the same application architecture documented in this repository, with the Next.js application hosted on Netlify and the production PostgreSQL database hosted through Neon.
 # ⚡ Why CampusFix?
 
 Campus infrastructure issues are operational events.
