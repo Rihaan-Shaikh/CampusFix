@@ -988,6 +988,8 @@ https://campusfixed.netlify.app/
 
 **Suggested screenshot:** Capture the main deployed application interface after successful authentication.
 
+![Figure A1-01 — CampusFix Application](./images/assignment-1/a1-01-campusfix-ui.png)
+
 ---
 
 ## Figure A1-02 — Server Component Implementation
@@ -997,6 +999,8 @@ https://campusfixed.netlify.app/
 **Evidence to include:**
 
 A screenshot of the relevant CampusFix source file showing a component that does not require the `"use client"` directive and participates in the server-rendered application tree.
+
+![Figure A1-02 — Server Component Implementation](./images/assignment-1/a1-02-server-component.png)
 
 **Caption:**
 
@@ -1018,6 +1022,8 @@ A screenshot of a relevant CampusFix Client Component showing:
 
 and the corresponding interactive logic.
 
+![Figure A1-03 — Client Component Boundary](./images/assignment-1/a1-03-client-component.png)
+
 **Caption:**
 
 > **Figure A1-03:** Client Component boundary used for browser-side interaction in CampusFix.
@@ -1031,6 +1037,8 @@ and the corresponding interactive logic.
 **Evidence to include:**
 
 A screenshot of the relevant Zustand store and/or the component consuming the store.
+
+![Figure A1-04 — Zustand Client State](./images/assignment-1/a1-04-zustand.png)
 
 **Caption:**
 
@@ -1060,6 +1068,8 @@ Speed Index: 2.9 s
 INP: Not measured
 ```
 
+![Figure A1-05 — Lighthouse Performance Report](./images/assignment-1/a1-05-lighthouse-performance.png)
+
 **Caption:**
 
 > **Figure A1-05:** Lighthouse performance audit of the deployed CampusFix application.
@@ -1076,6 +1086,8 @@ Accessibility     91
 Best Practices   100
 SEO              100
 ```
+
+![Figure A1-06 — Lighthouse Category Results](./images/assignment-1/a1-06-lighthouse-scores.png)
 
 **Caption:**
 

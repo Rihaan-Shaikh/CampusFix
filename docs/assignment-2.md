@@ -1189,11 +1189,7 @@ Migration successfully applied
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-01 — Prisma Migration](./images/assignment-2/a2-01-migration.png)
-```
 
 ---
 
@@ -1230,11 +1226,7 @@ status histories, and email delivery receipts.
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-02 — Prisma Seed Execution](./images/assignment-2/a2-02-seed.png)
-```
 
 ---
 
@@ -1269,11 +1261,7 @@ Email Activity
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-03 — Persisted Database Records](./images/assignment-2/a2-03-database-records.png)
-```
 
 ---
 
@@ -1297,11 +1285,7 @@ The screenshot should show the relevant models and their relationships.
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-04 — Prisma Schema](./images/assignment-2/a2-04-prisma-schema.png)
-```
 
 ---
 
@@ -1333,11 +1317,7 @@ Response handling
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-05 — API Route Handler](./images/assignment-2/a2-05-api-route.png)
-```
 
 ---
 
@@ -1357,11 +1337,7 @@ It should preferably show the component structure rather than only the rendered 
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-06 — React Email Component](./images/assignment-2/a2-06-react-email.png)
-```
 
 ---
 
@@ -1387,11 +1363,7 @@ The screenshot should show delivery status or event information without exposing
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-07 — Email Delivery Record](./images/assignment-2/a2-07-email-delivery.png)
-```
 
 ---
 
@@ -1416,11 +1388,7 @@ The evidence should demonstrate that authorization is performed server-side.
 
 ### Image
 
-When the screenshot is available, place it here:
-
-```markdown
 ![Figure A2-08 — Role-Based Authorization](./images/assignment-2/a2-08-authorization.png)
-```
 
 ---
 
