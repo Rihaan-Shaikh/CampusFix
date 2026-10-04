@@ -11,6 +11,7 @@ import { CampusFixLogo } from "@/components/brand/campusfix-logo";
 import { ParticleDrift } from "@/components/ui/particle-drift";
 import { Loader2, CheckCircle2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -153,6 +154,13 @@ export default function SignUpPage() {
               {errorMessage}
             </div>
           )}
+
+          {/* Social Authentication (Google & GitHub) */}
+          <SocialAuthButtons
+            callbackUrl="/"
+            onError={(msg) => setErrorMessage(msg || null)}
+            disabled={isLoading}
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">

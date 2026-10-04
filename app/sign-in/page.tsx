@@ -11,6 +11,7 @@ import { CampusFixLogo } from "@/components/brand/campusfix-logo";
 import { ParticleDrift } from "@/components/ui/particle-drift";
 import { Loader2, KeyRound, CheckCircle2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -23,6 +24,23 @@ export default function SignInPage() {
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  // Surface OAuth errors returned via query parameters
+  React.useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      const errorMap: Record<string, string> = {
+        access_denied: "Social sign-in was cancelled. Please try again or use your password.",
+        account_already_linked_to_different_user: "This social account is linked to another user.",
+        email_does_not_match: "The social provider email does not match the account email.",
+        untrusted_provider: "Provider is untrusted for automatic account linking.",
+        oauth_code_verification_failed: "Failed to verify social credentials. Please try again.",
+        state_not_found: "Authentication session expired. Please try signing in again.",
+        missing_email: "No verified email was returned by the social provider.",
+      };
+      setErrorMessage(errorMap[errorParam] || "Social authentication failed. Please try again.");
+    }
+  }, [searchParams]);
 
   // If already authenticated, cleanly redirect away from sign-in
   React.useEffect(() => {
@@ -153,6 +171,13 @@ export default function SignInPage() {
               {errorMessage}
             </div>
           )}
+
+          {/* Social Authentication (Google & GitHub) */}
+          <SocialAuthButtons
+            callbackUrl={callbackUrl}
+            onError={(msg) => setErrorMessage(msg || null)}
+            disabled={isLoading}
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
