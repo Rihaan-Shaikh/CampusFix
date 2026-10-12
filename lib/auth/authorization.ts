@@ -48,3 +48,11 @@ export async function requireAnyRole(allowedRoles: UserRole[]) {
 
   return user;
 }
+
+// Re-export edge authorization utilities
+export {
+  verifyAuthorizationToken,
+  signAuthorizationToken,
+  AUTH_COOKIE_NAME,
+  type CampusFixAuthPayload,
+} from "@/lib/auth-token";

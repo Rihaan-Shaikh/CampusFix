@@ -11,14 +11,15 @@ import { AppShell } from "@/components/layout/app-shell";
 export const dynamic = "force-dynamic";
 
 export default async function CampusFixPage() {
-  const session = await getServerSession();
+  // Parallel server data resolution to eliminate sequential waterfalls
+  const [session, issues] = await Promise.all([
+    getServerSession(),
+    getDatabaseIssues(),
+  ]);
 
   if (!session?.user) {
     redirect("/sign-in");
   }
-
-  // Server Component: fetches live relational campus issues from PostgreSQL via Prisma
-  const issues = await getDatabaseIssues();
 
   return (
     <AppShell session={session}>
