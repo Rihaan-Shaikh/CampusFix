@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/auth/authorization";
 import { issueFormSchema, CampusIssue, IssueFormData } from "@/schemas/issue-schema";
 import { IssuePriority, IssueStatus, AuditAction } from "@prisma/client";
 import { sendIssueNotification } from "@/lib/email/resend";
+import { sanitizeInput, generateUniqueReferenceCode } from "@/lib/utils";
 
 export type ServerActionResult =
   | {
@@ -18,28 +19,6 @@ export type ServerActionResult =
       message: string;
       errors?: Record<string, string[]>;
     };
-
-function sanitizeInput(text: string): string {
-  return text
-    .replace(/<[^>]*>?/gm, "")
-    .replace(/[&<>"']/g, (char) => {
-      switch (char) {
-        case "&":
-          return "&amp;";
-        case "<":
-          return "&lt;";
-        case ">":
-          return "&gt;";
-        case '"':
-          return "&quot;";
-        case "'":
-          return "&#39;";
-        default:
-          return char;
-      }
-    })
-    .trim();
-}
 
 export async function reportCampusIssueAction(
   rawInput: unknown
@@ -88,12 +67,11 @@ export async function reportCampusIssueAction(
         ? IssuePriority.LOW
         : IssuePriority.MEDIUM;
 
-    // Generate unique human-readable reference code
-    let referenceCode = `CFX-${Math.floor(1000 + Math.random() * 9000)}`;
-    const existing = await prisma.issue.findUnique({ where: { referenceCode } });
-    if (existing) {
-      referenceCode = `CFX-${Math.floor(1000 + Math.random() * 9000)}`;
-    }
+    // Generate unique human-readable reference code safely
+    const referenceCode = await generateUniqueReferenceCode(async (code) => {
+      const existing = await prisma.issue.findUnique({ where: { referenceCode: code }, select: { id: true } });
+      return !existing;
+    });
 
     // 3. Execute Atomic Prisma Transaction (Issue + Initial History + Audit Log)
     const result = await prisma.$transaction(async (tx) => {

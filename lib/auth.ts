@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { bearer } from "better-auth/plugins";
 import { prisma } from "@/lib/prisma";
 
 const envTrustedOrigins = process.env.BETTER_AUTH_TRUSTED_ORIGINS
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === "production" && !process.env.BETTER_AUTH_SECRET) {
 }
 
 export const auth = betterAuth({
+  plugins: [bearer()],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

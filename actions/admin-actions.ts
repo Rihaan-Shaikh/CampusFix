@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth/authorization";
-import { UserRole, IssueStatus, AuditAction } from "@prisma/client";
+import { Prisma, UserRole, IssueStatus, AuditAction } from "@prisma/client";
 
 export type AdminActionResult = {
   success: boolean;
@@ -171,26 +171,49 @@ export async function updateUserRoleAction(
     const newRole = newRoleStr as UserRole;
     const oldRole = targetUser.role;
 
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: { id: targetUserId },
-        data: { role: newRole },
-      });
+    // Security guard: Prevent self-demotion from ADMIN role
+    if (targetUserId === admin.id && newRole !== UserRole.ADMIN) {
+      return {
+        success: false,
+        message: "Security restriction: You cannot demote your own administrator account.",
+      };
+    }
 
-      await tx.auditLog.create({
-        data: {
-          actorUserId: admin.id,
-          action: AuditAction.USER_ROLE_CHANGED,
-          entityType: "User",
-          entityId: targetUserId,
-          metadata: {
-            userEmail: targetUser.email,
-            from: oldRole,
-            to: newRole,
+    await prisma.$transaction(
+      async (tx) => {
+        // Security guard: Prevent demoting the final remaining administrator (race-safe check inside transaction)
+        if (oldRole === UserRole.ADMIN && newRole !== UserRole.ADMIN) {
+          const adminCount = await tx.user.count({
+            where: { role: UserRole.ADMIN },
+          });
+          if (adminCount <= 1) {
+            throw new Error("Security restriction: Cannot demote the final remaining administrator account.");
+          }
+        }
+
+        await tx.user.update({
+          where: { id: targetUserId },
+          data: { role: newRole },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            actorUserId: admin.id,
+            action: AuditAction.USER_ROLE_CHANGED,
+            entityType: "User",
+            entityId: targetUserId,
+            metadata: {
+              userEmail: targetUser.email,
+              from: oldRole,
+              to: newRole,
+            },
           },
-        },
-      });
-    });
+        });
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      }
+    );
 
     revalidatePath("/admin/users");
     revalidatePath("/admin");

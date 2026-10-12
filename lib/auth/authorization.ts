@@ -2,10 +2,19 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
 
-export async function getServerSession() {
+export async function getServerSession(reqHeaders?: Headers) {
   try {
+    let h: Headers | undefined = reqHeaders;
+    if (!h) {
+      try {
+        h = await headers();
+      } catch {
+        // Outside of Next.js request scope (e.g. tests or background execution)
+        h = new Headers();
+      }
+    }
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: h,
     });
     return session;
   } catch (err) {
@@ -13,22 +22,22 @@ export async function getServerSession() {
   }
 }
 
-export async function getCurrentUser() {
-  const session = await getServerSession();
+export async function getCurrentUser(reqHeaders?: Headers) {
+  const session = await getServerSession(reqHeaders);
   if (!session?.user) return null;
   return session.user;
 }
 
-export async function requireAuthenticatedUser() {
-  const session = await getServerSession();
+export async function requireAuthenticatedUser(reqHeaders?: Headers) {
+  const session = await getServerSession(reqHeaders);
   if (!session?.user) {
     throw new Error("UNAUTHORIZED: Authentication required");
   }
   return session.user;
 }
 
-export async function requireRole(requiredRole: UserRole) {
-  const user = await requireAuthenticatedUser();
+export async function requireRole(requiredRole: UserRole, reqHeaders?: Headers) {
+  const user = await requireAuthenticatedUser(reqHeaders);
   const userRole = (user as unknown as { role?: string }).role || "MEMBER";
 
   if (userRole !== requiredRole) {
@@ -38,8 +47,8 @@ export async function requireRole(requiredRole: UserRole) {
   return user;
 }
 
-export async function requireAnyRole(allowedRoles: UserRole[]) {
-  const user = await requireAuthenticatedUser();
+export async function requireAnyRole(allowedRoles: UserRole[], reqHeaders?: Headers) {
+  const user = await requireAuthenticatedUser(reqHeaders);
   const userRole = ((user as unknown as { role?: string }).role || "MEMBER") as UserRole;
 
   if (!allowedRoles.includes(userRole)) {

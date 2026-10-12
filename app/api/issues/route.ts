@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/authorization";
 import { issueFormSchema } from "@/schemas/issue-schema";
-import { IssuePriority, IssueStatus, AuditAction } from "@prisma/client";
+import { IssuePriority, IssueStatus, AuditAction, UserRole } from "@prisma/client";
+import { sanitizeInput, generateUniqueReferenceCode } from "@/lib/utils";
+import { sendIssueNotification } from "@/lib/email/resend";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(req.headers);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized: Authentication required" },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const category = searchParams.get("category");
@@ -42,7 +52,31 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, count: issues.length, data: issues });
+    const userRole = (session.user as unknown as { role?: string }).role || "MEMBER";
+    const isAdmin = userRole === UserRole.ADMIN;
+
+    // Redact reporter and assignee email for privacy unless caller is ADMIN or the author
+    const sanitizedIssues = issues.map((issue) => ({
+      ...issue,
+      createdBy: {
+        id: issue.createdBy.id,
+        name: issue.createdBy.name,
+        ...(isAdmin || issue.createdById === session.user.id
+          ? { email: issue.createdBy.email }
+          : {}),
+      },
+      assignedTo: issue.assignedTo
+        ? {
+            id: issue.assignedTo.id,
+            name: issue.assignedTo.name,
+            ...(isAdmin || issue.createdById === session.user.id
+              ? { email: (issue.assignedTo as { email?: string }).email }
+              : {}),
+          }
+        : null,
+    }));
+
+    return NextResponse.json({ success: true, count: sanitizedIssues.length, data: sanitizedIssues });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch issues" }, { status: 500 });
   }
@@ -50,9 +84,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(req.headers);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized: Authentication required" }, { status: 401 });
+    }
+
+    const userRole = (session.user as unknown as { role?: string }).role || "MEMBER";
+    if (userRole === "GUEST") {
+      return NextResponse.json(
+        { error: "Forbidden: Guest accounts have read-only access and cannot submit issues" },
+        { status: 403 }
+      );
     }
 
     const json = await req.json();
@@ -62,21 +104,29 @@ export async function POST(req: NextRequest) {
     }
 
     const { title, category, location, priority, description } = parsed.data;
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedLocation = sanitizeInput(location);
+    const sanitizedDescription = sanitizeInput(description);
+
     const priorityEnum =
       priority === "High" ? IssuePriority.HIGH : priority === "Low" ? IssuePriority.LOW : IssuePriority.MEDIUM;
 
-    const referenceCode = `CFX-${Math.floor(1000 + Math.random() * 9000)}`;
+    // Collision-safe unique reference code generation
+    const referenceCode = await generateUniqueReferenceCode(async (code) => {
+      const existing = await prisma.issue.findUnique({ where: { referenceCode: code }, select: { id: true } });
+      return !existing;
+    });
 
     const issue = await prisma.$transaction(async (tx) => {
       const created = await tx.issue.create({
         data: {
           referenceCode,
-          title,
+          title: sanitizedTitle,
           category,
-          location,
+          location: sanitizedLocation,
           priority: priorityEnum,
           status: IssueStatus.OPEN,
-          description,
+          description: sanitizedDescription,
           createdById: session.user.id,
         },
       });
@@ -103,8 +153,22 @@ export async function POST(req: NextRequest) {
       return created;
     });
 
+    // Asynchronously dispatch transactional confirmation email
+    sendIssueNotification({
+      issueId: issue.id,
+      referenceCode: issue.referenceCode,
+      title: issue.title,
+      category: issue.category,
+      location: issue.location,
+      priority,
+      recipientEmail: session.user.email,
+      recipientName: session.user.name,
+      userId: session.user.id,
+    }).catch((err) => console.error("Async email dispatch notice:", err));
+
     return NextResponse.json({ success: true, data: issue }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to process issue creation" }, { status: 500 });
   }
 }
+

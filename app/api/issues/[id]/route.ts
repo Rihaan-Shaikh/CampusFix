@@ -16,7 +16,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(req.headers);
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized: Authentication required" },
@@ -45,7 +45,28 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: issue });
+    const userRole = (session.user as unknown as { role?: string }).role || "MEMBER";
+    const isAdmin = userRole === UserRole.ADMIN;
+    const isOwner = issue.createdById === session.user.id;
+
+    // Redact reporter/assignee email unless caller is ADMIN or owner
+    const sanitizedIssue = {
+      ...issue,
+      createdBy: {
+        id: issue.createdBy.id,
+        name: issue.createdBy.name,
+        ...(isAdmin || isOwner ? { email: issue.createdBy.email } : {}),
+      },
+      assignedTo: issue.assignedTo
+        ? {
+            id: issue.assignedTo.id,
+            name: issue.assignedTo.name,
+            ...(isAdmin || isOwner ? { email: issue.assignedTo.email } : {}),
+          }
+        : null,
+    };
+
+    return NextResponse.json({ success: true, data: sanitizedIssue });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to retrieve issue" },
@@ -59,7 +80,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const admin = await requireRole(UserRole.ADMIN);
+    const admin = await requireRole(UserRole.ADMIN, req.headers);
 
     const json = await req.json();
     const parsed = updateIssueSchema.safeParse(json);

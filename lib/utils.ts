@@ -23,3 +23,29 @@ export function formatDate(dateString: string): string {
     year: "numeric",
   });
 }
+
+export function sanitizeInput(text: string): string {
+  if (!text) return "";
+  return text
+    // Remove script tags and their contents
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    // Remove any remaining HTML tags
+    .replace(/<[^>]*>/g, "")
+    // Avoid HTML entity conversion to prevent double-encoding in React JSX and Flutter Text widgets
+    .trim();
+}
+
+export async function generateUniqueReferenceCode(
+  checkUniqueFn: (code: string) => Promise<boolean>
+): Promise<string> {
+  let attempts = 0;
+  while (attempts < 10) {
+    const candidate = `CFX-${Math.floor(1000 + Math.random() * 9000)}`;
+    const isUnique = await checkUniqueFn(candidate);
+    if (isUnique) {
+      return candidate;
+    }
+    attempts++;
+  }
+  return `CFX-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
+}
